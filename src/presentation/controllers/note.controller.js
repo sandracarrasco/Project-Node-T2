@@ -9,9 +9,9 @@ export default class NoteController {
         data.userId = req.user.id; 
         try {
             const note = await this.noteService.createNote(data);
-            res.status(201).json(note); 
+            res.status(201).json({ success: true, data: note }); 
         } catch (error) {
-            res.status(400).json({ error: error.message });
+            res.status(400).json({ success: false, error: error.message });
         }
     }
 
@@ -19,18 +19,18 @@ export default class NoteController {
         const userId = req.user.id; // Obtenemos el id del usuario desde el token (authMiddleware)
         try {
             const notes = await this.noteService.getNotesByUserId(userId);
-            res.status(200).json(notes); // 200 OK
+            res.status(200).json({ success: true, data: notes });
         } catch (error) {
-            res.status(404).json({ error: error.message });
+            res.status(404).json({ success: false, error: error.message });
         }
     }
 
     getAllNotes = async (req, res) => {
         try {
             const notes = await this.noteService.getAllNotes();
-            res.status(200).json(notes);
+            res.status(200).json({ success: true, data: notes });
         } catch (error) {
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ success: false, error: error.message });
         }
     }
 
@@ -39,11 +39,11 @@ export default class NoteController {
         const userId = req.user.id;
         try {
             const note = await this.noteService.getNoteById(id, userId);
-            res.status(200).json(note);
+            res.status(200).json({ success: true, data: note });
         } catch (error) {
-            if (error.message.includes("found")) return res.status(404).json({ error: error.message });
-            if (error.message.includes("authorized")) return res.status(403).json({ error: error.message });
-            res.status(400).json({ error: error.message });
+            if (error.message.includes("found")) return res.status(404).json({ success: false, error: error.message });
+            if (error.message.includes("authorized")) return res.status(403).json({ success: false, error: error.message });
+            res.status(400).json({ success: false, error: error.message });
         }
     }
 
@@ -55,11 +55,11 @@ export default class NoteController {
         
         try {
             const note = await this.noteService.updateNote(id, data, userId);
-            res.status(200).json(note);
+            res.status(200).json({ success: true, data: note });
         } catch (error) {
-            if (error.message.includes("found")) return res.status(404).json({ error: error.message });
-            if (error.message.includes("authorized")) return res.status(403).json({ error: error.message });
-            res.status(400).json({ error: error.message });
+            if (error.message.includes("found")) return res.status(404).json({ success: false, error: error.message });
+            if (error.message.includes("authorized")) return res.status(403).json({ success: false, error: error.message });
+            res.status(400).json({ success: false, error: error.message });
         }
     }
 
@@ -68,11 +68,11 @@ export default class NoteController {
         const userId = req.user.id;
         try {
             const result = await this.noteService.deleteNote(id, userId);
-            res.status(200).json({ message: "Note deleted successfully" });
+            res.status(204).send();
         } catch (error) {
-            if (error.message.includes("found")) return res.status(404).json({ error: error.message });
-            if (error.message.includes("authorized")) return res.status(403).json({ error: error.message });
-            res.status(400).json({ error: error.message });
+            if (error.message.includes("found")) return res.status(404).json({ success: false, error: error.message });
+            if (error.message.includes("authorized")) return res.status(403).json({ success: false, error: error.message });
+            res.status(400).json({ success: false, error: error.message });
         }
     }
 
@@ -81,15 +81,15 @@ export default class NoteController {
         const { email } = req.body;
         const currentUserId = req.user.id;
 
-        if (!email) return res.status(400).json({ error: "Target email is required" });
+        if (!email) return res.status(400).json({ success: false, error: "Target email is required" });
 
         try {
             const result = await this.noteService.shareNoteByEmail(id, email, currentUserId);
-            res.status(200).json(result);
+            res.status(200).json({ success: true, data: result });
         } catch (error) {
-            if (error.message.includes("found")) return res.status(404).json({ error: error.message });
-            if (error.message.includes("authorized")) return res.status(403).json({ error: error.message });
-            res.status(400).json({ error: error.message });
+            if (error.message.includes("found")) return res.status(404).json({ success: false, error: error.message });
+            if (error.message.includes("authorized")) return res.status(403).json({ success: false, error: error.message });
+            res.status(400).json({ success: false, error: error.message });
         }
     }
 }
