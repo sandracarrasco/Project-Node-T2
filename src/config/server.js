@@ -5,6 +5,7 @@ import morgan from 'morgan';
 import { loggerMiddleware } from '../presentation/middlewares/logger.middleware.js';
 import noteRoutes from '../presentation/routes/note.routes.js';
 import authRoutes from '../presentation/routes/auth.routes.js';
+import categoryRoutes from '../presentation/routes/category.routes.js';
 import { setupSwagger } from './swagger.js';
 
 export const createServer = () => {
@@ -22,6 +23,7 @@ export const createServer = () => {
     // Rutas
     app.use('/api/v1/notes', noteRoutes);
     app.use('/api/v1/auth', authRoutes);
+    app.use('/api/v1/categories', categoryRoutes);
 
     // Documentación Swagger
     setupSwagger(app);
