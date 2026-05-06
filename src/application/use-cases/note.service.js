@@ -13,8 +13,12 @@ export default class NoteService {
         return await this.noteRepository.save(note);
     }
 
-    async getNotesByUserId(userId){
+    async getNotesByUserId(userId) {
         return await this.noteRepository.findByUserId(userId);
+    }
+
+    async getNotesByCategoryId(categoryId) {
+        return await this.noteRepository.findByCategoryId(categoryId);
     }
 
     async getAllNotes() {
