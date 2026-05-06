@@ -6,7 +6,8 @@ const noteSchema = new Schema({
     imageUrl: { type: String },
     isPrivate: { type: Boolean, default: false },
     password: { type: String },
-    userId: { type:String, required: true }
+    userId: { type: String, required: true },
+    categoryId: { type: Schema.Types.ObjectId, ref: 'Category', default: null }
 }, { timestamps: true });
 
 export default model('Note', noteSchema);
