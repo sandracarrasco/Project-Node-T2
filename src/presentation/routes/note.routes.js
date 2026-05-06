@@ -1,7 +1,7 @@
 import { Router } from "express";
 import NoteController from "../controllers/note.controller.js";
 import NoteService from "../../application/use-cases/note.service.js";
-import upload from "../middlewares/upload.middleware.js";
+import  upload  from "../middlewares/upload.middleware.js";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
 import { roleMiddleware } from "../middlewares/role.middleware.js";
 
@@ -21,7 +21,7 @@ const router = Router();
  * @swagger
  * tags:
  *   name: Notes
- *   description: Gestión de notas con soporte para categorías
+ *   description: Gestión de notas con soporte de categorías
  */
 
 /**
@@ -29,7 +29,7 @@ const router = Router();
  * /api/v1/notes:
  *   post:
  *     summary: Crear una nueva nota
- *     description: Crea una nota nueva para el usuario autenticado. Permite subir una imagen opcional y asignarle una categoría.
+ *     description: Crea una nota nueva para el usuario autenticado. Permite subir una imagen opcional y asociar una categoría.
  *     tags: [Notes]
  *     security:
  *       - bearerAuth: []
@@ -65,7 +65,7 @@ const router = Router();
  *               categoryId:
  *                 type: string
  *                 description: ID de la categoría a la que pertenece la nota (opcional)
- *                 example: 6538a1b1c3d4e5f5a7b8c9d7
+ *                 example: 6638a1b2c3d4e5f6a7b8c9d0
  *     responses:
  *       201:
  *         description: Nota creada exitosamente
@@ -97,7 +97,8 @@ router.post("/", authMiddleware, upload.single('imageUrl'), noteController.creat
  * /api/v1/notes:
  *   get:
  *     summary: Obtener todas las notas del usuario actual
- *     description: Retorna un listado de notas asociadas al usuario autenticado, incluye las notas de la categoria asociada si existe.
+ *     description: Retorna un listado de notas asociadas al usuario autenticado, incluyendo los datos de la categoría asociada (si existe).
+ *     tags: [Notes]
  *     security:
  *       - bearerAuth: []
  *     responses:
@@ -129,7 +130,7 @@ router.get("/", authMiddleware, noteController.getNotesByUserId);
  * /api/v1/notes/all:
  *   get:
  *     summary: Obtener todas las notas del sistema (Solo Admin)
- *     description: Devuelve todas las notas registradas en el sistema con sus categorias. Requiere privilegios de administrador.
+ *     description: Devuelve todas las notas registradas en el sistema con sus categorías populadas. Requiere privilegios de administrador.
  *     tags: [Notes]
  *     security:
  *       - bearerAuth: []
@@ -157,7 +158,6 @@ router.get("/", authMiddleware, noteController.getNotesByUserId);
  */
 router.get("/all", authMiddleware, roleMiddleware(["admin"]), noteController.getAllNotes);
 
-
 /**
  * @swagger
  * /api/v1/notes/category/{categoryId}:
@@ -174,7 +174,7 @@ router.get("/all", authMiddleware, roleMiddleware(["admin"]), noteController.get
  *           type: string
  *         required: true
  *         description: ID de la categoría para filtrar notas
- *         example: 6538a1b1c3d4e5f5a7b8c9d7
+ *         example: 6638a1b2c3d4e5f6a7b8c9d0
  *     responses:
  *       200:
  *         description: Notas de la categoría obtenidas exitosamente
@@ -196,6 +196,65 @@ router.get("/all", authMiddleware, roleMiddleware(["admin"]), noteController.get
  *         description: Error interno del servidor
  */
 router.get("/category/:categoryId", authMiddleware, noteController.getNotesByCategoryId);
+
+/**
+ * @swagger
+ * /api/v1/notes/{id}/public:
+ *   get:
+ *     summary: Ver una nota pública (sin autenticación)
+ *     description: Permite acceder a una nota sin necesidad de token JWT. Ideal para compartir links. Si la nota tiene isPrivate en true, se deniega el acceso con un error 403.
+ *     tags: [Notes]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: ID de la nota a visualizar públicamente
+ *     responses:
+ *       200:
+ *         description: Nota obtenida exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   $ref: '#/components/schemas/Note'
+ *       403:
+ *         description: Acceso denegado, la nota es privada
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 error:
+ *                   type: string
+ *                   example: This note is private
+ *       404:
+ *         description: Nota no encontrada
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 error:
+ *                   type: string
+ *                   example: Note not found
+ *       500:
+ *         description: Error interno del servidor
+ */
+router.get("/:id/public", noteController.getPublicNote);
+
 /**
  * @swagger
  * /api/v1/notes/{id}:
@@ -241,7 +300,7 @@ router.get("/:id", authMiddleware, noteController.getNoteById);
  * /api/v1/notes/{id}:
  *   put:
  *     summary: Actualizar una nota existente (Solo Admin)
- *     description: Permite modificar una nota existente incluyendo cambiar o asignar la categoria. Requiere ser el creador de la nota o administrador.
+ *     description: Permite modificar una nota existente, incluyendo cambiar o asignar una categoría. Requiere ser el creador de la nota o administrador.
  *     tags: [Notes]
  *     security:
  *       - bearerAuth: []
@@ -277,7 +336,7 @@ router.get("/:id", authMiddleware, noteController.getNoteById);
  *               categoryId:
  *                 type: string
  *                 description: ID de la nueva categoría (enviar cadena vacía o null para quitar categoría)
- *                 example: 6538a1b1c3d4e5f5a7b8c9d7
+ *                 example: 6638a1b2c3d4e5f6a7b8c9d0
  *     responses:
  *       200:
  *         description: Nota actualizada exitosamente

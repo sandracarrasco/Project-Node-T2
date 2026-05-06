@@ -13,7 +13,7 @@ export default class NoteService {
         return await this.noteRepository.save(note);
     }
 
-    async getNotesByUserId(userId) {
+    async getNotesByUserId(userId){
         return await this.noteRepository.findByUserId(userId);
     }
 
@@ -29,6 +29,13 @@ export default class NoteService {
         const note = await this.noteRepository.findById(id);
         if (!note) throw new Error("Note not found");
         if (note.userId !== userId) throw new Error("Not authorized to view this note");
+        return note;
+    }
+
+    async getPublicNoteById(id) {
+        const note = await this.noteRepository.findById(id);
+        if (!note) throw new Error("Note not found");
+        if (note.isPrivate) throw new Error("This note is private");
         return note;
     }
 

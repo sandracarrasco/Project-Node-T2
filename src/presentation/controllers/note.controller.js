@@ -6,10 +6,10 @@ export default class NoteController {
     createNote = async (req, res) => {
         const data = req.body;
         if (req.file) data.imageUrl = '/uploads/' + req.file.filename;
-        data.userId = req.user.id;
+        data.userId = req.user.id; 
         try {
             const note = await this.noteService.createNote(data);
-            res.status(201).json({ success: true, data: note });
+            res.status(201).json({ success: true, data: note }); 
         } catch (error) {
             res.status(400).json({ success: false, error: error.message });
         }
@@ -25,19 +25,31 @@ export default class NoteController {
         }
     }
 
-    getAllNotes = async (req, res) => {
+    getNotesByCategoryId = async (req, res) => {
+        const { categoryId } = req.params;
         try {
-            const notes = await this.noteService.getAllNotes();
+            const notes = await this.noteService.getNotesByCategoryId(categoryId);
             res.status(200).json({ success: true, data: notes });
         } catch (error) {
             res.status(500).json({ success: false, error: error.message });
         }
     }
 
-    getNotesByCategoryId = async (req, res) => {
-        const { categoryId } = req.params;
+    getPublicNote = async (req, res) => {
+        const { id } = req.params;
         try {
-            const notes = await this.noteService.getNotesByCategoryId(categoryId);
+            const note = await this.noteService.getPublicNoteById(id);
+            res.status(200).json({ success: true, data: note });
+        } catch (error) {
+            if (error.message.includes("not found")) return res.status(404).json({ success: false, error: error.message });
+            if (error.message.includes("private")) return res.status(403).json({ success: false, error: error.message });
+            res.status(500).json({ success: false, error: error.message });
+        }
+    }
+
+    getAllNotes = async (req, res) => {
+        try {
+            const notes = await this.noteService.getAllNotes();
             res.status(200).json({ success: true, data: notes });
         } catch (error) {
             res.status(500).json({ success: false, error: error.message });
@@ -62,7 +74,7 @@ export default class NoteController {
         const data = req.body;
         const userId = req.user.id;
         if (req.file) data.imageUrl = '/uploads/' + req.file.filename;
-
+        
         try {
             const note = await this.noteService.updateNote(id, data, userId);
             res.status(200).json({ success: true, data: note });
