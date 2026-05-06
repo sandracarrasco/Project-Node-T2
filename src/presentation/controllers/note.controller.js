@@ -6,10 +6,10 @@ export default class NoteController {
     createNote = async (req, res) => {
         const data = req.body;
         if (req.file) data.imageUrl = '/uploads/' + req.file.filename;
-        data.userId = req.user.id; 
+        data.userId = req.user.id;
         try {
             const note = await this.noteService.createNote(data);
-            res.status(201).json({ success: true, data: note }); 
+            res.status(201).json({ success: true, data: note });
         } catch (error) {
             res.status(400).json({ success: false, error: error.message });
         }
@@ -34,6 +34,16 @@ export default class NoteController {
         }
     }
 
+    getNotesByCategoryId = async (req, res) => {
+        const { categoryId } = req.params;
+        try {
+            const notes = await this.noteService.getNotesByCategoryId(categoryId);
+            res.status(200).json({ success: true, data: notes });
+        } catch (error) {
+            res.status(500).json({ success: false, error: error.message });
+        }
+    }
+
     getNoteById = async (req, res) => {
         const { id } = req.params;
         const userId = req.user.id;
@@ -52,7 +62,7 @@ export default class NoteController {
         const data = req.body;
         const userId = req.user.id;
         if (req.file) data.imageUrl = '/uploads/' + req.file.filename;
-        
+
         try {
             const note = await this.noteService.updateNote(id, data, userId);
             res.status(200).json({ success: true, data: note });

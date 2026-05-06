@@ -46,7 +46,22 @@ const options = {
                         title: { type: 'string', description: 'Título de la nota' },
                         content: { type: 'string', description: 'Contenido detallado de la nota' },
                         imageUrl: { type: 'string', description: 'URL de la imagen adjunta', nullable: true },
+                        isPrivate: { type: 'boolean', description: 'Indica si la nota es privada', default: false },
+                        password: { type: 'string', description: 'Contraseña para notas privadas', nullable: true },
                         userId: { type: 'string', description: 'ID del usuario creador de la nota' },
+                        categoryId: { type: 'string', description: 'ID de la categoría asociada (opcional)', nullable: true },
+                        createdAt: { type: 'string', format: 'date-time' },
+                        updatedAt: { type: 'string', format: 'date-time' }
+                    }
+                },
+                Category: {
+                    type: 'object',
+                    required: ['name', 'userId'],
+                    properties: {
+                        id: { type: 'string', description: 'ID autogenerado de la categoria' },
+                        name: { type: 'string', description: 'Nombre de la categoria' },
+                        description: { type: 'string', description: 'Descripción de la categoria', nullable: true },
+                        userId: { type: 'string', description: 'ID del usuario creador de la categoria' },
                         createdAt: { type: 'string', format: 'date-time' },
                         updatedAt: { type: 'string', format: 'date-time' }
                     }
